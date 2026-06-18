@@ -4,9 +4,10 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { useTeamData } from "@/lib/team-context";
 
 export function DataLoader({ children }: { children: React.ReactNode }) {
-  const { loading, error } = useTeamData();
+  const { loading, error, departments } = useTeamData();
+  const isInitialLoad = loading && departments.length === 0;
 
-  if (loading) {
+  if (isInitialLoad) {
     return <LoadingSpinner label="Loading workspace..." />;
   }
 

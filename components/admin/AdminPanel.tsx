@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-import { apiGet, apiPost } from "@/lib/api-client";
+import { apiDelete, apiGet, apiPost } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 import { useTeamData } from "@/lib/team-context";
 import type { Department } from "@/lib/types";
@@ -18,6 +18,7 @@ export function AdminPanel() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -45,6 +46,31 @@ export function AdminPanel() {
       loadDepartments();
     }
   }, [user?.isAdmin, loadDepartments]);
+
+  async function handleDelete(dept: Department) {
+    const confirmed = window.confirm(
+      `Delete "${dept.name}"?\n\nThis removes all tasks, logs, and activity for this department. It cannot be undone. Members must be moved or removed first.`,
+    );
+    if (!confirmed) return;
+
+    setDeletingId(dept.id);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const data = await apiDelete<{ ok: boolean; name: string }>(
+        `/api/admin/departments/${dept.id}`,
+      );
+      setDepartments((prev) => prev.filter((d) => d.id !== dept.id));
+      setSuccess(`"${data.name}" was deleted.`);
+      await refresh();
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete department");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -209,28 +235,40 @@ export function AdminPanel() {
           </p>
         ) : (
           <ul className="divide-y divide-slate-100">
-            {departments.map((dept) => (
-              <li
-                key={dept.id}
-                className="flex items-center gap-4 px-5 py-4"
-              >
-                <span
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-                  style={{ backgroundColor: dept.color }}
+            {departments.map((dept) => {
+              const isDeleting = deletingId === dept.id;
+
+              return (
+                <li
+                  key={dept.id}
+                  className="flex items-center gap-4 px-5 py-4"
                 >
-                  {dept.name.charAt(0)}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-slate-900">{dept.name}</p>
-                  <p className="text-xs text-slate-500">/{dept.slug}</p>
-                  {dept.description && (
-                    <p className="mt-1 text-sm text-slate-600">
-                      {dept.description}
-                    </p>
-                  )}
-                </div>
-              </li>
-            ))}
+                  <span
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                    style={{ backgroundColor: dept.color }}
+                  >
+                    {dept.name.charAt(0)}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-slate-900">{dept.name}</p>
+                    <p className="text-xs text-slate-500">/{dept.slug}</p>
+                    {dept.description && (
+                      <p className="mt-1 text-sm text-slate-600">
+                        {dept.description}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(dept)}
+                    disabled={Boolean(deletingId) || submitting}
+                    className="shrink-0 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isDeleting ? "Deleting..." : "Delete"}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

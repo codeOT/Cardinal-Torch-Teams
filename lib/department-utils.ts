@@ -92,11 +92,24 @@ export function summarizeDepartmentTasks(
   };
 }
 
-export function getDepartmentNavItems(department: Department) {
-  const base = `/departments/${department.slug}`;
+export function getDepartmentNavItemsFromSlug(slug: string) {
+  const base = `/departments/${slug}`;
   return [
     { href: base, label: "Dashboard", segment: "dashboard" as const },
     { href: `${base}/tasks`, label: "Tasks", segment: "tasks" as const },
     { href: `${base}/logs`, label: "Daily logs", segment: "logs" as const },
   ];
+}
+
+export function getDepartmentNavItems(department: Department) {
+  return getDepartmentNavItemsFromSlug(department.slug);
+}
+
+export function isDepartmentNavActive(pathname: string, href: string): boolean {
+  if (pathname === href) return true;
+  // Dashboard href is a prefix of tasks/logs — only exact match counts
+  if (href.match(/^\/departments\/[^/]+$/)) {
+    return false;
+  }
+  return pathname.startsWith(`${href}/`);
 }

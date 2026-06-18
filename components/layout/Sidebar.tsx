@@ -6,8 +6,9 @@ import { useState } from "react";
 
 import { Avatar } from "@/components/ui/Avatar";
 import {
-  getDepartmentNavItems,
+  getDepartmentNavItemsFromSlug,
   getDepartmentSlugFromPath,
+  isDepartmentNavActive,
 } from "@/lib/department-utils";
 import { useAuth } from "@/lib/auth-context";
 import { useTeamData } from "@/lib/team-context";
@@ -27,6 +28,7 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
   const department = deptSlug
     ? departments.find((d) => d.slug === deptSlug)
     : null;
+  const departmentNav = deptSlug ? getDepartmentNavItemsFromSlug(deptSlug) : [];
 
   const isHome = pathname === "/";
   const isAdminRoute = pathname.startsWith("/admin");
@@ -126,25 +128,24 @@ export function Sidebar({ mobileOpen = false, onNavigate }: SidebarProps) {
             </li>
           )}
 
-          {department &&
-            getDepartmentNavItems(department).map((item) => {
-              const isActive = pathname === item.href;
+          {departmentNav.map((item) => {
+            const isActive = isDepartmentNavActive(pathname, item.href);
 
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={linkClass(isActive)}
-                    onClick={onNavigate}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={linkClass(isActive)}
+                  onClick={onNavigate}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
 
-        {!department && (
+        {!deptSlug && (
           <>
             <p className="mb-2 mt-6 px-2 text-xs font-medium uppercase tracking-wider text-slate-400">
               Quick access

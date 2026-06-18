@@ -8,6 +8,7 @@ import { Task } from "@/lib/db/models/Task";
 import { TaskComment } from "@/lib/db/models/TaskComment";
 import { serializeComment } from "@/lib/serializers";
 import { createActivity } from "@/lib/services/activities";
+import { notifyTaskComment } from "@/lib/services/task-notifications";
 
 const commentSchema = z.object({
   taskId: z.string().min(1),
@@ -42,6 +43,17 @@ export async function POST(request: Request) {
       type: "task_comment",
       message: `commented on "${task.title}"`,
       meta: { taskId: task.taskId, taskTitle: task.title },
+    });
+
+    notifyTaskComment({
+      taskId: task.taskId,
+      title: task.title,
+      departmentId: task.departmentId,
+      assigneeIds: task.assigneeIds,
+      createdById: task.createdById,
+      actorId: auth.user.id,
+      actorName: auth.user.name,
+      comment: body.body.trim(),
     });
 
     return NextResponse.json({ comment: serializeComment(doc) }, { status: 201 });

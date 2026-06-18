@@ -9,6 +9,7 @@ import { formatMemberNames } from "@/lib/members";
 import { User } from "@/lib/db/models/User";
 import { serializeTask, serializeUser } from "@/lib/serializers";
 import { createActivity } from "@/lib/services/activities";
+import { notifyTaskAssigned } from "@/lib/services/task-notifications";
 
 const createTaskSchema = z.object({
   title: z.string().min(1),
@@ -60,6 +61,18 @@ export async function POST(request: Request) {
         taskId,
         taskTitle: body.title.trim(),
       },
+    });
+
+    notifyTaskAssigned({
+      taskId,
+      title: body.title.trim(),
+      description: body.description?.trim() ?? "",
+      status: body.status,
+      dueDate: body.dueDate,
+      departmentId: body.departmentId,
+      assigneeIds: body.assigneeIds,
+      actorId: auth.user.id,
+      actorName: auth.user.name,
     });
 
     return NextResponse.json({ task: serializeTask(doc) }, { status: 201 });

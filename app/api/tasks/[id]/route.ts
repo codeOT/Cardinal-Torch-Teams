@@ -7,6 +7,7 @@ import { connectDB } from "@/lib/db/connect";
 import { Task } from "@/lib/db/models/Task";
 import { serializeTask } from "@/lib/serializers";
 import { createActivity } from "@/lib/services/activities";
+import { notifyTaskStatusChanged } from "@/lib/services/task-notifications";
 import { isTaskAssignee } from "@/lib/members";
 
 const patchSchema = z.object({
@@ -36,6 +37,7 @@ export async function PATCH(
       return jsonError("Only assignees can update this task", 403);
     }
 
+    const previousStatus = serialized.status;
     const now = new Date().toISOString();
     task.status = body.status;
     task.updatedAt = now;
@@ -59,6 +61,22 @@ export async function PATCH(
         taskTitle: task.title,
       },
     });
+
+    if (previousStatus !== body.status) {
+      notifyTaskStatusChanged({
+        taskId: task.taskId,
+        title: task.title,
+        description: task.description ?? "",
+        status: body.status,
+        previousStatus,
+        dueDate: task.dueDate,
+        departmentId: task.departmentId,
+        assigneeIds: task.assigneeIds,
+        createdById: task.createdById,
+        actorId: auth.user.id,
+        actorName: auth.user.name,
+      });
+    }
 
     return NextResponse.json({ task: serializeTask(task) });
   } catch (err) {

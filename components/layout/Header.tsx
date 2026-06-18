@@ -19,8 +19,13 @@ export function Header({ onMenuClick }: HeaderProps) {
     : null;
   const isAdmin = pathname.startsWith("/admin");
 
-  const isTasks = pathname.endsWith("/tasks");
-  const isLogs = pathname.endsWith("/logs");
+  const isTasks = deptSlug !== null && pathname.endsWith("/tasks");
+  const isLogs = deptSlug !== null && pathname.endsWith("/logs");
+  const deptLabel =
+    department?.name ??
+    (deptSlug
+      ? deptSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+      : null);
 
   let title = "Departments";
   let description =
@@ -29,18 +34,18 @@ export function Header({ onMenuClick }: HeaderProps) {
   if (isAdmin) {
     title = "Admin";
     description = "Manage organization departments.";
-  } else if (department) {
+  } else if (deptLabel && deptSlug) {
     if (isTasks) {
-      title = `${department.name} — Tasks`;
+      title = `${deptLabel} — Tasks`;
       description =
         "Create and manage department tasks. Assignees update their own work.";
     } else if (isLogs) {
-      title = `${department.name} — Daily logs`;
+      title = `${deptLabel} — Daily logs`;
       description =
         "Read daily logs posted from task cards in this department.";
-    } else {
-      title = `${department.name} dashboard`;
-      description = department.description;
+    } else if (pathname === `/departments/${deptSlug}`) {
+      title = `${deptLabel} dashboard`;
+      description = department?.description ?? "Department overview.";
     }
   }
 
@@ -65,15 +70,15 @@ export function Header({ onMenuClick }: HeaderProps) {
 
         <div className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
-            {department && pathname !== `/departments/${department.slug}` && (
+            {deptSlug && pathname !== `/departments/${deptSlug}` && (
               <Link
-                href={`/departments/${department.slug}`}
+                href={`/departments/${deptSlug}`}
                 className="mb-1 inline-block text-xs font-medium text-indigo-600 hover:text-indigo-700"
               >
-                ← Back to {department.name} dashboard
+                ← Back to {deptLabel} dashboard
               </Link>
             )}
-            {!department && (
+            {!deptSlug && !isAdmin && (
               <p className="mb-1 text-xs font-medium text-slate-400">
                 Cardinal Torch company limited organization overview
               </p>
