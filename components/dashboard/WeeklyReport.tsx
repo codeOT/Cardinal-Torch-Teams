@@ -8,10 +8,11 @@ import {
   buildWeeklyReport,
   formatWeeklyReportText,
 } from "@/lib/weekly-report";
+import { useAuth } from "@/lib/auth-context";
+import { getMemberById } from "@/lib/members";
 import type { DailyLog, Department, TeamMember } from "@/lib/types";
 import {
   addDays,
-  formatWeekRangeLabel,
   getWeekStart,
   isCurrentWeek,
 } from "@/lib/week-utils";
@@ -31,9 +32,12 @@ export function WeeklyReport({
   weekStart,
   onWeekChange,
 }: WeeklyReportProps) {
+  const { user } = useAuth();
+  const member = user ? getMemberById(members, user.id) ?? user : undefined;
+
   const report = useMemo(
-    () => buildWeeklyReport(logs, members, department, weekStart),
-    [logs, members, department, weekStart],
+    () => buildWeeklyReport(logs, member, department, weekStart),
+    [logs, member, department, weekStart],
   );
 
   const isThisWeek = isCurrentWeek(weekStart);
@@ -68,9 +72,14 @@ export function WeeklyReport({
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <h2 className="text-base font-semibold text-slate-900">
-              Weekly report
+              My weekly report
             </h2>
             <p className="text-sm text-slate-500">{report.weekLabel}</p>
+            {member && (
+              <p className="mt-1 text-xs text-slate-400">
+                Your logs for {report.departmentName}
+              </p>
+            )}
           </div>
 
           <div className="grid w-full grid-cols-2 gap-2 print:hidden sm:flex sm:w-auto sm:flex-wrap sm:items-center">
@@ -115,81 +124,69 @@ export function WeeklyReport({
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-3">
-          <StatPill label="Total logs" value={report.totalLogs} />
-          <StatPill label="Members logged" value={report.activeMembers} />
-          <StatPill label="Active days" value={report.activeDays} />
+        {member && (
+          <div className="mt-4 flex items-center gap-3">
+            <Avatar member={member} size="sm" />
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-slate-900">{member.name}</p>
+              <p className="text-xs text-slate-500">{member.role}</p>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+          <StatPill label="Your logs" value={report.totalLogs} />
+          <StatPill label="Days logged" value={report.activeDays} />
         </div>
       </div>
 
       {report.totalLogs === 0 ? (
-        <p className="px-5 py-10 text-center text-sm text-slate-400">
-          No daily logs this week. Team members can post updates above — they
-          will appear here automatically.
+        <p className="px-4 py-10 text-center text-sm text-slate-400 sm:px-5">
+          You have not posted any daily logs this week. Use the form above to add
+          an update — it will show up here automatically.
         </p>
       ) : (
-        <div className="divide-y divide-slate-100">
-          {report.members
-            .filter((entry) => entry.totalLogs > 0)
-            .map(({ member, days, totalLogs }) => (
-              <article key={member.id} className="px-4 py-5 sm:px-5">
-                <div className="mb-4 flex items-center gap-3">
-                  <Avatar member={member} size="sm" />
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-900">
-                      {member.name}
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      {member.role} · {totalLogs} log
-                      {totalLogs === 1 ? "" : "s"} this week
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  {days
-                    .filter((day) => day.logs.length > 0)
-                    .map((day) => (
-                      <div key={day.date}>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                          {day.label}
+        <div className="space-y-4 px-4 py-5 sm:px-5">
+          {report.days
+            .filter((day) => day.logs.length > 0)
+            .map((day) => (
+              <div key={day.date}>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  {day.label}
+                </p>
+                <ul className="mt-2 space-y-3">
+                  {day.logs.map((log) => (
+                    <li
+                      key={log.id}
+                      className="rounded-lg border border-slate-100 bg-slate-50 px-4 py-3"
+                    >
+                      {log.taskTitle && (
+                        <p className="text-xs font-medium text-indigo-600">
+                          Task: {log.taskTitle}
                         </p>
-                        <ul className="mt-2 space-y-3">
-                          {day.logs.map((log) => (
-                            <li
-                              key={log.id}
-                              className="rounded-lg border border-slate-100 bg-slate-50 px-4 py-3"
-                            >
-                              {log.taskTitle && (
-                                <p className="text-xs font-medium text-indigo-600">
-                                  Task: {log.taskTitle}
-                                </p>
-                              )}
-                              <p className="mt-1 text-sm leading-relaxed text-slate-700">
-                                {log.summary}
-                              </p>
-                              {log.imageUrl && (
-                                <div className="relative mt-3 h-32 w-full max-w-xs overflow-hidden rounded-lg border border-slate-200">
-                                  <Image
-                                    src={log.imageUrl}
-                                    alt="Log attachment"
-                                    fill
-                                    className="object-cover"
-                                    sizes="320px"
-                                    unoptimized={
-                                      log.imageUrl.startsWith("blob:") ||
-                                      log.imageUrl.startsWith("data:")
-                                    }
-                                  />
-                                </div>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                </div>
-              </article>
+                      )}
+                      <p className="mt-1 text-sm leading-relaxed text-slate-700">
+                        {log.summary}
+                      </p>
+                      {log.imageUrl && (
+                        <div className="relative mt-3 h-32 w-full max-w-xs overflow-hidden rounded-lg border border-slate-200">
+                          <Image
+                            src={log.imageUrl}
+                            alt="Log attachment"
+                            fill
+                            className="object-cover"
+                            sizes="320px"
+                            unoptimized={
+                              log.imageUrl.startsWith("blob:") ||
+                              log.imageUrl.startsWith("data:")
+                            }
+                          />
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
         </div>
       )}

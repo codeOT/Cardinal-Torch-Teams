@@ -29,7 +29,7 @@ export function DepartmentLogsClient({ department }: DepartmentLogsClientProps) 
   const views: { value: LogView; label: string; count?: number }[] = [
     { value: "today", label: "Today", count: todaysLogs.length },
     { value: "all", label: "All logs", count: logs.length },
-    { value: "weekly", label: "Weekly report" },
+    { value: "weekly", label: "My weekly report" },
   ];
 
   return (

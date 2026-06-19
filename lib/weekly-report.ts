@@ -12,26 +12,20 @@ export interface WeeklyReportDay {
   logs: DailyLog[];
 }
 
-export interface WeeklyReportMember {
-  member: TeamMember;
-  days: WeeklyReportDay[];
-  totalLogs: number;
-}
-
 export interface WeeklyReport {
   weekStart: string;
   weekEnd: string;
   weekLabel: string;
   departmentName: string;
-  members: WeeklyReportMember[];
+  member: TeamMember | null;
+  days: WeeklyReportDay[];
   totalLogs: number;
-  activeMembers: number;
   activeDays: number;
 }
 
 export function buildWeeklyReport(
   logs: DailyLog[],
-  members: TeamMember[],
+  member: TeamMember | undefined,
   department: Department,
   weekStart: Date,
 ): WeeklyReport {
@@ -42,86 +36,61 @@ export function buildWeeklyReport(
 
   const weekLogs = logs.filter(
     (log) =>
-      log.departmentId === department.id && weekSet.has(log.date),
+      log.departmentId === department.id &&
+      log.memberId === member?.id &&
+      weekSet.has(log.date),
   );
 
-  const deptMembers = members.filter(
-    (m) => m.departmentId === department.id && !m.isAdmin,
-  );
-
-  const membersWithLogs = new Map<string, Map<string, DailyLog[]>>();
-
+  const logsByDate = new Map<string, DailyLog[]>();
   for (const log of weekLogs) {
-    let byDate = membersWithLogs.get(log.memberId);
-    if (!byDate) {
-      byDate = new Map();
-      membersWithLogs.set(log.memberId, byDate);
-    }
-    const dayLogs = byDate.get(log.date) ?? [];
+    const dayLogs = logsByDate.get(log.date) ?? [];
     dayLogs.push(log);
-    byDate.set(log.date, dayLogs);
+    logsByDate.set(log.date, dayLogs);
   }
 
-  const reportMembers: WeeklyReportMember[] = deptMembers
-    .map((member) => {
-      const byDate = membersWithLogs.get(member.id);
-      const days: WeeklyReportDay[] = weekDates.map((date) => ({
-        date,
-        label: formatDayLabel(date),
-        logs: (byDate?.get(date) ?? []).sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-        ),
-      }));
+  const days: WeeklyReportDay[] = weekDates.map((date) => ({
+    date,
+    label: formatDayLabel(date),
+    logs: (logsByDate.get(date) ?? []).sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    ),
+  }));
 
-      const totalLogs = days.reduce((sum, day) => sum + day.logs.length, 0);
-
-      return { member, days, totalLogs };
-    })
-    .sort((a, b) => {
-      if (b.totalLogs !== a.totalLogs) return b.totalLogs - a.totalLogs;
-      return a.member.name.localeCompare(b.member.name);
-    });
-
-  const activeDays = weekDates.filter((date) =>
-    weekLogs.some((log) => log.date === date),
-  ).length;
+  const activeDays = days.filter((day) => day.logs.length > 0).length;
 
   return {
     weekStart: weekStartStr,
     weekEnd: weekEndStr,
     weekLabel: formatWeekRangeLabel(weekStart),
     departmentName: department.name,
-    members: reportMembers,
+    member: member ?? null,
+    days,
     totalLogs: weekLogs.length,
-    activeMembers: reportMembers.filter((m) => m.totalLogs > 0).length,
     activeDays,
   };
 }
 
 export function formatWeeklyReportText(report: WeeklyReport): string {
+  const memberName = report.member?.name ?? "You";
+  const memberRole = report.member?.role;
+
   const lines: string[] = [
-    `Weekly Report — ${report.departmentName}`,
+    `My Weekly Report — ${report.departmentName}`,
     report.weekLabel,
     "",
-    `Summary: ${report.totalLogs} log${report.totalLogs === 1 ? "" : "s"} from ${report.activeMembers} team member${report.activeMembers === 1 ? "" : "s"} across ${report.activeDays} day${report.activeDays === 1 ? "" : "s"}.`,
+    `${memberName}${memberRole ? ` (${memberRole})` : ""}`,
+    `Summary: ${report.totalLogs} log${report.totalLogs === 1 ? "" : "s"} across ${report.activeDays} day${report.activeDays === 1 ? "" : "s"}.`,
     "",
   ];
 
-  for (const { member, days, totalLogs } of report.members) {
-    if (totalLogs === 0) continue;
-
-    lines.push(`${member.name} (${member.role}) — ${totalLogs} log${totalLogs === 1 ? "" : "s"}`);
-
-    for (const day of days) {
-      if (day.logs.length === 0) continue;
-      lines.push(`  ${day.label}`);
-      for (const log of day.logs) {
-        const task = log.taskTitle ? ` [${log.taskTitle}]` : "";
-        lines.push(`    • ${log.summary}${task}`);
-      }
+  for (const day of report.days) {
+    if (day.logs.length === 0) continue;
+    lines.push(day.label);
+    for (const log of day.logs) {
+      const task = log.taskTitle ? ` [${log.taskTitle}]` : "";
+      lines.push(`  • ${log.summary}${task}`);
     }
-
     lines.push("");
   }
 

@@ -42,7 +42,7 @@ export function Header({ onMenuClick }: HeaderProps) {
     } else if (isLogs) {
       title = `${deptLabel} — Daily logs`;
       description =
-        "Post daily logs and view the weekly report for this department.";
+        "Post daily logs and view your personal weekly report.";
     } else if (pathname === `/departments/${deptSlug}`) {
       title = `${deptLabel} dashboard`;
       description = department?.description ?? "Department overview.";
