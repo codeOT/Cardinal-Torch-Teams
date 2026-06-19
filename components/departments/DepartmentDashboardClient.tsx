@@ -28,7 +28,7 @@ export function DepartmentDashboardClient({
   const deptMembers = getMembersByDepartment(members, department.id);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <StatsCards
         tasks={tasks}
         logs={todaysLogs}
@@ -42,7 +42,7 @@ export function DepartmentDashboardClient({
         onAddComment={handleAddComment}
       />
 
-      <div className="grid gap-8 xl:grid-cols-2">
+      <div className="grid gap-6 xl:grid-cols-2">
         <TeamActivityFeed activities={activities} />
         <DailyLogsList
           logs={todaysLogs}

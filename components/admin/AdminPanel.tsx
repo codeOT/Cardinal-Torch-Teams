@@ -118,7 +118,7 @@ export function AdminPanel() {
   return (
     <div className="space-y-8">
       <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-100 px-5 py-4">
+        <div className="border-b border-slate-100 px-4 py-4 sm:px-5">
           <h2 className="text-base font-semibold text-slate-900">
             Add department
           </h2>
@@ -127,7 +127,7 @@ export function AdminPanel() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 p-5">
+        <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:p-5">
           <div>
             <label
               htmlFor="dept-name"
@@ -206,7 +206,7 @@ export function AdminPanel() {
           <button
             type="submit"
             disabled={!name.trim() || submitting}
-            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             {submitting && (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
@@ -217,7 +217,7 @@ export function AdminPanel() {
       </section>
 
       <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-100 px-5 py-4">
+        <div className="border-b border-slate-100 px-4 py-4 sm:px-5">
           <h2 className="text-base font-semibold text-slate-900">
             All departments
           </h2>
@@ -241,28 +241,30 @@ export function AdminPanel() {
               return (
                 <li
                   key={dept.id}
-                  className="flex items-center gap-4 px-5 py-4"
+                  className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:gap-4 sm:px-5"
                 >
-                  <span
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-                    style={{ backgroundColor: dept.color }}
-                  >
-                    {dept.name.charAt(0)}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-slate-900">{dept.name}</p>
-                    <p className="text-xs text-slate-500">/{dept.slug}</p>
-                    {dept.description && (
-                      <p className="mt-1 text-sm text-slate-600">
-                        {dept.description}
-                      </p>
-                    )}
+                  <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center sm:gap-4">
+                    <span
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                      style={{ backgroundColor: dept.color }}
+                    >
+                      {dept.name.charAt(0)}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-slate-900">{dept.name}</p>
+                      <p className="text-xs text-slate-500">/{dept.slug}</p>
+                      {dept.description && (
+                        <p className="mt-1 text-sm text-slate-600">
+                          {dept.description}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => handleDelete(dept)}
                     disabled={Boolean(deletingId) || submitting}
-                    className="shrink-0 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-full shrink-0 rounded-lg border border-red-200 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:py-1.5"
                   >
                     {isDeleting ? "Deleting..." : "Delete"}
                   </button>

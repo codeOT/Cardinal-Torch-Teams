@@ -22,7 +22,7 @@ export function TeamActivityFeed({ activities }: TeamActivityFeedProps) {
 
   return (
     <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-100 px-5 py-4">
+      <div className="border-b border-slate-100 px-4 py-4 sm:px-5">
         <h2 className="text-base font-semibold text-slate-900">Team activity</h2>
         <p className="text-sm text-slate-500">
           Recent updates from everyone on the team
@@ -34,7 +34,7 @@ export function TeamActivityFeed({ activities }: TeamActivityFeedProps) {
           if (!member) return null;
 
           return (
-            <li key={activity.id} className="flex gap-3 px-5 py-4">
+            <li key={activity.id} className="flex gap-3 px-4 py-4 sm:px-5">
               <Avatar member={member} size="sm" />
               <div className="min-w-0 flex-1">
                 <p className="text-sm text-slate-800">

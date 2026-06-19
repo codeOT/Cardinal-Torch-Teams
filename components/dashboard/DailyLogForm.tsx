@@ -63,8 +63,7 @@ export function DailyLogForm({
 
   const blockedMessage = (
     <p className="text-sm text-slate-500">
-      You can only post daily logs for your own department. Open a task in your
-      department to log your work.
+      You can only post daily logs for your own department.
     </p>
   );
 
@@ -138,7 +137,11 @@ export function DailyLogForm({
       <textarea
         value={summary}
         onChange={(e) => setSummary(e.target.value)}
-        placeholder="What did you work on for this task today?"
+        placeholder={
+          taskTitle
+            ? "What did you work on for this task today?"
+            : "What did you work on today?"
+        }
         rows={4}
         disabled={submitting}
         className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100 disabled:opacity-60"
@@ -168,30 +171,28 @@ export function DailyLogForm({
         <p className="mt-2 text-xs text-slate-500">Selected: {fileName}</p>
       )}
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            disabled={submitting}
-            className="hidden"
-            id={inputId}
-          />
-          <label
-            htmlFor={inputId}
-            className={`cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 ${
-              submitting ? "pointer-events-none opacity-60" : ""
-            }`}
-          >
-            Attach photo
-          </label>
-        </div>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <label
+          htmlFor={inputId}
+          className={`w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-center text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 sm:w-auto ${
+            submitting ? "pointer-events-none opacity-60" : ""
+          }`}
+        >
+          Attach photo
+        </label>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          disabled={submitting}
+          className="hidden"
+          id={inputId}
+        />
         <button
           type="submit"
           disabled={!summary.trim() || submitting}
-          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
           {submitting && (
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
@@ -208,13 +209,13 @@ export function DailyLogForm({
 
   return (
     <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-100 px-5 py-4">
+      <div className="border-b border-slate-100 px-4 py-4 sm:px-5">
         <h2 className="text-base font-semibold text-slate-900">Log your day</h2>
         <p className="text-sm text-slate-500">
-          Open a task and use Daily log to post an update.
+          Share what you worked on today with your team.
         </p>
       </div>
-      <div className="p-5">{formContent}</div>
+      <div className="p-4 sm:p-5">{formContent}</div>
     </section>
   );
 }

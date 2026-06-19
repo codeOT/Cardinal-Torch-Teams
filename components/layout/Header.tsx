@@ -42,7 +42,7 @@ export function Header({ onMenuClick }: HeaderProps) {
     } else if (isLogs) {
       title = `${deptLabel} — Daily logs`;
       description =
-        "Read daily logs posted from task cards in this department.";
+        "Post daily logs and view the weekly report for this department.";
     } else if (pathname === `/departments/${deptSlug}`) {
       title = `${deptLabel} dashboard`;
       description = department?.description ?? "Department overview.";
@@ -57,8 +57,8 @@ export function Header({ onMenuClick }: HeaderProps) {
   });
 
   return (
-    <header className="shrink-0 border-b border-slate-200 bg-white px-4 py-4 sm:px-6 lg:px-8 lg:py-5">
-      <div className="flex items-start gap-3">
+    <header className="shrink-0 border-b border-slate-200 bg-white px-3 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-5">
+      <div className="flex items-start gap-2 sm:gap-3">
         <button
           type="button"
           onClick={onMenuClick}
@@ -83,10 +83,10 @@ export function Header({ onMenuClick }: HeaderProps) {
                 Cardinal Torch company limited organization overview
               </p>
             )}
-            <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
+            <h1 className="line-clamp-2 text-lg font-semibold tracking-tight text-slate-900 sm:text-2xl">
               {title}
             </h1>
-            <p className="mt-0.5 text-sm text-slate-500">{description}</p>
+            <p className="mt-0.5 line-clamp-3 text-sm text-slate-500">{description}</p>
           </div>
           <p className="hidden shrink-0 text-sm font-medium text-slate-600 sm:block">
             {today}

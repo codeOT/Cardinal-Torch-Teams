@@ -16,4 +16,30 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #weekly-report,
+  #weekly-report * {
+    visibility: visible;
+  }
+
+  #weekly-report {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none;
+    box-shadow: none;
+  }
 }

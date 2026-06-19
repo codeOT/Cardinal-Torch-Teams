@@ -81,9 +81,9 @@ export function TasksPanel({
       onSubmit={handleLogSubmit}
     />
     <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-100 px-5 py-4">
+      <div className="border-b border-slate-100 px-4 py-4 sm:px-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <h2 className="text-base font-semibold text-slate-900">Tasks at hand</h2>
             <p className="text-sm text-slate-500">
               Track team work by status. Use Daily log on a task to post updates.
@@ -109,9 +109,9 @@ export function TasksPanel({
         </div>
       </div>
 
-      <div className="p-5">
+      <div className="p-4 sm:p-5">
         {filter === "all" ? (
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {(Object.keys(grouped) as TaskStatus[]).map((status) => (
               <TaskColumn
                 key={status}
@@ -246,13 +246,13 @@ function TaskCard({
 
   return (
     <li
-      className={`rounded-lg border p-4 ${TASK_CARD_STATUS_STYLES[task.status]} ${
+      className={`rounded-lg border p-3 sm:p-4 ${TASK_CARD_STATUS_STYLES[task.status]} ${
         isAssignee ? "ring-2 ring-indigo-300/60 ring-offset-1" : ""
       }`}
     >
       <div className="mb-2 flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <h4 className="text-sm font-medium text-slate-900">{task.title}</h4>
+        <div className="min-w-0 flex-1">
+          <h4 className="text-sm font-medium text-slate-900 break-words">{task.title}</h4>
           {creator && (
             <p className="mt-0.5 text-xs text-slate-500">
               Created by{" "}
@@ -270,14 +270,14 @@ function TaskCard({
       <p className="mb-3 text-xs leading-relaxed text-slate-600">
         {task.description}
       </p>
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
             Assignees
           </p>
           <div className="mt-1 flex items-center gap-2">
             <CollaboratorAvatars memberIds={task.assigneeIds} />
-            <span className="truncate text-xs text-slate-500">
+            <span className="min-w-0 truncate text-xs text-slate-500">
               {assigneeLabel}
               {isAssignee && (
                 <span className="ml-1 font-medium text-indigo-600">(you)</span>
@@ -285,7 +285,7 @@ function TaskCard({
             </span>
           </div>
         </div>
-        <span className="shrink-0 text-xs text-slate-400">
+        <span className="shrink-0 text-xs text-slate-400 sm:text-right">
           Due {formatDate(task.dueDate)}
         </span>
       </div>

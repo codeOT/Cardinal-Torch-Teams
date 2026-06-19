@@ -55,23 +55,33 @@ export function DepartmentsHome() {
             <li key={dept.id}>
               <Link
                 href={`/departments/${dept.slug}`}
-                className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition-all hover:border-indigo-200 hover:shadow-md sm:gap-6 sm:px-6 sm:py-5"
+                className="group flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-indigo-200 hover:shadow-md sm:flex-row sm:items-center sm:gap-6 sm:p-6"
               >
-                <div
-                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-xl font-bold text-white sm:h-16 sm:w-16 sm:text-2xl"
-                  style={{ backgroundColor: dept.color }}
-                  aria-hidden
-                >
-                  {dept.name.charAt(0)}
-                </div>
+                <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+                  <div
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white sm:h-16 sm:w-16 sm:text-2xl"
+                    style={{ backgroundColor: dept.color }}
+                    aria-hidden
+                  >
+                    {dept.name.charAt(0)}
+                  </div>
 
-                <h3 className="min-w-[5.5rem] shrink-0 text-base font-semibold text-slate-900 group-hover:text-indigo-700 sm:min-w-[7rem] sm:text-lg">
-                  {dept.name}
-                </h3>
+                  <h3 className="min-w-0 flex-1 truncate text-base font-semibold text-slate-900 group-hover:text-indigo-700 sm:min-w-[7rem] sm:flex-none sm:text-lg">
+                    {dept.name}
+                  </h3>
+
+                  <div className="shrink-0 sm:hidden">
+                    <CollaboratorAvatars
+                      memberIds={memberIds}
+                      maxVisible={3}
+                      size="sm"
+                    />
+                  </div>
+                </div>
 
                 <DepartmentStats summary={summary} />
 
-                <div className="ml-auto flex shrink-0 items-center">
+                <div className="hidden shrink-0 sm:flex">
                   <CollaboratorAvatars
                     memberIds={memberIds}
                     maxVisible={5}
@@ -94,7 +104,7 @@ function DepartmentStats({
 }) {
   return (
     <div
-      className="flex flex-1 items-center justify-center gap-2 font-mono text-sm text-slate-700 sm:gap-3 sm:text-base"
+      className="flex w-full items-center justify-start gap-2 font-mono text-sm text-slate-700 sm:flex-1 sm:justify-center sm:gap-3 sm:text-base"
       aria-label={`${summary.total} total, ${summary.pending} pending, ${summary.delivered} delivered`}
     >
       <span className="font-semibold text-slate-900">{summary.total}</span>

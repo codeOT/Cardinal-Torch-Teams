@@ -96,8 +96,8 @@ export function AddTaskForm({
 
   return (
     <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-        <div>
+      <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-5">
+        <div className="min-w-0">
           <h2 className="text-base font-semibold text-slate-900">Add a task</h2>
           <p className="text-sm text-slate-500">
             Create a department task, assign one or more people, and set status.
@@ -106,14 +106,14 @@ export function AddTaskForm({
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+          className="w-full shrink-0 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 sm:w-auto sm:py-1.5"
         >
           {open ? "Cancel" : "New task"}
         </button>
       </div>
 
       {open && (
-        <form onSubmit={handleSubmit} className="space-y-4 p-5">
+        <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:p-5">
           <div>
             <label
               htmlFor="task-title"
@@ -241,7 +241,7 @@ export function AddTaskForm({
             </p>
           )}
 
-          <div className="flex justify-end gap-2">
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={() => {
@@ -258,7 +258,7 @@ export function AddTaskForm({
               disabled={
                 !title.trim() || assigneeIds.length === 0 || submitting
               }
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
               {submitting && (
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
